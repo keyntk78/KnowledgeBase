@@ -228,7 +228,6 @@ namespace KnowledgeBase.BackendServer.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ParentId")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
