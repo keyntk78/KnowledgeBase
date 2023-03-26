@@ -8,6 +8,8 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 
+/*Add Services*/
+
 //1. Setup entity framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -52,6 +54,7 @@ Log.Logger = new LoggerConfiguration()
                             .CreateLogger();
 
 
+// seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
