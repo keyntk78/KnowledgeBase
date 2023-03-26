@@ -164,7 +164,7 @@ namespace KnowledgeBase.BackendServer.Migrations
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Url = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
-                    ParentId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                    ParentId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KnowledgeBase.BackendServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230326112042_initial-database")]
+    [Migration("20230326133459_initial-database")]
     partial class initialdatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -230,7 +230,6 @@ namespace KnowledgeBase.BackendServer.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ParentId")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
