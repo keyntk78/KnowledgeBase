@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KnowledgeBase.ViewModels", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KnowledgeBase.WebPortal", "src\KnowledgeBase.WebPortal\KnowledgeBase.WebPortal.csproj", "{B80F5B0B-20B6-4CC8-9E42-FB7A791FCFC6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{92DF3163-9D94-4394-A048-7A871E12BAC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnowledgeBase.BackendServer.UnitTest", "test\KnowledgeBase.BackendServer.UnitTest\KnowledgeBase.BackendServer.UnitTest.csproj", "{1FA73389-9FAC-44AB-B7CC-7D5B795C3945}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,9 +31,16 @@ Global
 		{B80F5B0B-20B6-4CC8-9E42-FB7A791FCFC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B80F5B0B-20B6-4CC8-9E42-FB7A791FCFC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B80F5B0B-20B6-4CC8-9E42-FB7A791FCFC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FA73389-9FAC-44AB-B7CC-7D5B795C3945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FA73389-9FAC-44AB-B7CC-7D5B795C3945}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FA73389-9FAC-44AB-B7CC-7D5B795C3945}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FA73389-9FAC-44AB-B7CC-7D5B795C3945}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1FA73389-9FAC-44AB-B7CC-7D5B795C3945} = {92DF3163-9D94-4394-A048-7A871E12BAC3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9627A257-866C-49B2-9E5D-09FB137415CA}

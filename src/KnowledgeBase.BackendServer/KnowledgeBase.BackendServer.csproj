@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\KnowledgeBase.ViewModels\KnowledgeBase.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

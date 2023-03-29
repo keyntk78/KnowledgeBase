@@ -42,48 +42,53 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: GET: http://localhost:5000/api/roles
         [HttpGet]
-        public async Task<IActionResult> GetRole()
+        public async Task<IActionResult> GetRoles()
         {
-            var roles = await _roleManager.Roles.Select(r=>new RoleVm()
-            {
-                Id= r.Id,
-                Name = r.Name,
-            }).ToListAsync();
 
-            return Ok(roles);
+            var roles = await _roleManager.Roles.ToListAsync();
+
+            var rolevm = roles.Select(r => new RoleVm()
+            {
+                Id = r.Id, Name = r.Name,
+            });
+
+ 
+
+            return Ok(rolevm);
         }
 
 
 
-        //Url: GET: http://localhost:5000/api/roles/?filter={filter}&pageIndex=1&PageSize=10
-        [HttpGet]
-        public async Task<IActionResult> GetRole(string filter,int pageIndex, int pageSize)
+        //URL: GET: http://localhost:5001/api/roles/?filter={filter}&pageIndex=1&pageSize=10
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetRolesPaging(string? filter, int pageIndex, int pageSize)
         {
-            var roles =  _roleManager.Roles;
+            var query = _roleManager.Roles;
             if (!string.IsNullOrEmpty(filter))
             {
-                roles = roles.Where(x=>x.Id.Contains(filter) || x.Name.Contains(filter));
+                query = query.Where(x => x.Id.Contains(filter) || x.Name.Contains(filter));
             }
-
-            var totalRecords = roles.Count();
-
-            var items = await roles.Skip((pageIndex - 1) * pageSize).Take(pageSize).Select(r=> new RoleVm()
-            {
-                Id = r.Id, Name = r.Name
-            }).ToListAsync();
+            var totalRecords = await query.CountAsync();
+            var items = await query.Skip((pageIndex - 1 * pageSize))
+                .Take(pageSize)
+                .Select(r => new RoleVm()
+                {
+                    Id = r.Id,
+                    Name = r.Name
+                })
+                .ToListAsync();
 
             var pagination = new Panination<RoleVm>
             {
                 Items = items,
                 TotalRecords = totalRecords,
             };
-            
             return Ok(pagination);
         }
 
 
         //Url: GET: http://localhost:5000/api/roles/{id}
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
@@ -99,7 +104,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         //Url: PUT: http://localhost:5000/api/roles/{id}
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutRole(string id,[FromBody]RoleVm roleVm)
         {
 
@@ -124,8 +129,8 @@ namespace KnowledgeBase.BackendServer.Controllers
 
 
         //Url: DELETE: http://localhost:5000/api/roles/{id}
-        [HttpDelete("id")]
-        public async Task<IActionResult> DeletePost(string id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRole(string id)
         {
 
           
