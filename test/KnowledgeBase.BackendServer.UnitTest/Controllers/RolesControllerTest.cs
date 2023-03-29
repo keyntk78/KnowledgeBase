@@ -1,10 +1,10 @@
 ﻿using KnowledgeBase.BackendServer.Controllers;
-using KnowledgeBase.BackendServer.UnitTest.Extensions;
 using KnowledgeBase.ViewModels;
 using KnowledgeBase.ViewModels.Systems;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using MockQueryable.Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +17,7 @@ namespace KnowledgeBase.BackendServer.UnitTest.Controllers
     {
 
         private readonly Mock<RoleManager<IdentityRole>> _mockRoleManager;
+
         private List<IdentityRole> _roleSources = new List<IdentityRole>(){
                              new IdentityRole("test1"),
                              new IdentityRole("test2"),
@@ -24,19 +25,16 @@ namespace KnowledgeBase.BackendServer.UnitTest.Controllers
                              new IdentityRole("test4")
                         };
 
-
         public RolesControllerTest()
         {
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
-             _mockRoleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
+            _mockRoleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
         }
 
         [Fact]
         public void ShouldCreateInstance_NotNull_Success()
         {
-         
             var rolesController = new RolesController(_mockRoleManager.Object);
-
             Assert.NotNull(rolesController);
         }
 
@@ -45,7 +43,6 @@ namespace KnowledgeBase.BackendServer.UnitTest.Controllers
         {
             _mockRoleManager.Setup(x => x.CreateAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Success);
-
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.PostRole(new RoleVm()
             {
@@ -77,8 +74,7 @@ namespace KnowledgeBase.BackendServer.UnitTest.Controllers
         public async Task GetRoles_HasData_ReturnSuccess()
         {
             _mockRoleManager.Setup(x => x.Roles)
-                .Returns(_roleSources.AsAsyncQueryable());
-
+                .Returns(_roleSources.AsQueryable().BuildMock());
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.GetRoles();
             var okResult = result as OkObjectResult;
@@ -96,33 +92,33 @@ namespace KnowledgeBase.BackendServer.UnitTest.Controllers
             await Assert.ThrowsAnyAsync<Exception>(async () => await rolesController.GetRoles());
         }
 
-        //[Fact]
-        //public async Task GetRolesPaging_NoFilter_ReturnSuccess()
-        //{
-        //    _mockRoleManager.Setup(x => x.Roles)
-        //        .Returns(_roleSources.AsAsyncQueryable());
+        [Fact]
+        public async Task GetRolesPaging_NoFilter_ReturnSuccess()
+        {
+            _mockRoleManager.Setup(x => x.Roles)
+                .Returns(_roleSources.AsQueryable().BuildMock());
 
-        //    var rolesController = new RolesController(_mockRoleManager.Object);
-        //    var result = await rolesController.GetRolesPaging(null, 1, 2);
-        //    var okResult = result as OkObjectResult;
-        //    var roleVms = okResult.Value as Panination<RoleVm>;
-        //    Assert.Equal(4, roleVms.TotalRecords);
-        //    Assert.Equal(2, roleVms.Items.Count);
-        //}
+            var rolesController = new RolesController(_mockRoleManager.Object);
+            var result = await rolesController.GetRolesPaging(null, 1, 2);
+            var okResult = result as OkObjectResult;
+            var roleVms = okResult.Value as Panination<RoleVm>;
+            Assert.Equal(4, roleVms.TotalRecords);
+            Assert.Equal(2, roleVms.Items.Count);
+        }
 
-        //[Fact]
-        //public async Task GetRolesPaging_HasFilter_ReturnSuccess()
-        //{
-        //    _mockRoleManager.Setup(x => x.Roles)
-        //        .Returns(_roleSources.AsAsyncQueryable());
+        [Fact]
+        public async Task GetRolesPaging_HasFilter_ReturnSuccess()
+        {
+            _mockRoleManager.Setup(x => x.Roles)
+                .Returns(_roleSources.AsQueryable().BuildMock());
 
-        //    var rolesController = new RolesController(_mockRoleManager.Object);
-        //    var result = await rolesController.GetRolesPaging("test3", 1, 2);
-        //    var okResult = result as OkObjectResult;
-        //    var roleVms = okResult.Value as Panination<RoleVm>;
-        //    Assert.Equal(1, roleVms.TotalRecords);
-        //    Assert.Single(roleVms.Items);
-        //}
+            var rolesController = new RolesController(_mockRoleManager.Object);
+            var result = await rolesController.GetRolesPaging("test3", 1, 2);
+            var okResult = result as OkObjectResult;
+            var roleVms = okResult.Value as Panination<RoleVm>;
+            Assert.Equal(1, roleVms.TotalRecords);
+            Assert.Single(roleVms.Items);
+        }
 
         [Fact]
         public async Task GetRolesPaging_ThrowException_Failed()

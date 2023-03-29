@@ -22,6 +22,8 @@ namespace KnowledgeBase.BackendServer.Controllers
         [HttpPost]
         public async Task<IActionResult> PostRole(RoleVm roleVm)
         {
+
+       
             var role = new IdentityRole()
             {
                 Id = roleVm.Id,
@@ -45,16 +47,14 @@ namespace KnowledgeBase.BackendServer.Controllers
         public async Task<IActionResult> GetRoles()
         {
 
-            var roles = await _roleManager.Roles.ToListAsync();
-
-            var rolevm = roles.Select(r => new RoleVm()
+        
+            var roles = await _roleManager.Roles.Select(r => new RoleVm()
             {
                 Id = r.Id, Name = r.Name,
-            });
+            }).ToListAsync();
 
  
-
-            return Ok(rolevm);
+            return Ok(roles);
         }
 
 
