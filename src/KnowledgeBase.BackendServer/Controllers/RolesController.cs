@@ -20,7 +20,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: POST: http://localhost:5000/api/roles
         [HttpPost]
-        public async Task<IActionResult> PostRole(RoleCreateRequest request)
+        public async Task<IActionResult> PostRole([FromBody]RoleCreateRequest request)
         {
 
        

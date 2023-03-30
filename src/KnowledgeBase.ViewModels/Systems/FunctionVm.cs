@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KnowledgeBase.ViewModels.Systems
 {
-    public class FuntionVm
+    public class FunctionVm
     {
         public string Id { get; set; }
         public string Name { get; set; }

@@ -11,19 +11,23 @@ namespace KnowledgeBase.BackendServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FuntionsController : BaseController
+    public class FunctionsController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
-        public FuntionsController(ApplicationDbContext context) 
+        public FunctionsController(ApplicationDbContext context) 
         {
             _context = context;
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> PostFuntion([FromBody]FuntionCreateRequest request)
+        public async Task<IActionResult> PostFunction([FromBody]FunctionCreateRequest request)
         {
+            var dbFunction = await _context.Functions.FindAsync(request.Id);
+            if (dbFunction != null)
+                return BadRequest($"Function with id {request.Id} is existed.");
+
             var funtion = new Function()
             {
                 Id = request.Id,
@@ -48,10 +52,10 @@ namespace KnowledgeBase.BackendServer.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetFuntions()
+        public async Task<IActionResult> GetFunctions()
         {
 
-            var funtionVms = await _context.Functions.Select(f => new FuntionVm()
+            var funtionVms = await _context.Functions.Select(f => new FunctionVm()
             {
                Id = f.Id,
                Name = f.Name,
@@ -65,7 +69,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
 
         [HttpGet("filter")]
-        public async Task<IActionResult> GetFuntionsPaging(string? filter, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetFunctionsPaging(string? filter, int pageIndex, int pageSize)
         {
             var query = _context.Functions.AsQueryable();
             if (!string.IsNullOrEmpty(filter))
@@ -78,7 +82,7 @@ namespace KnowledgeBase.BackendServer.Controllers
             var totalRecords = await query.CountAsync();
             var items = await query.Skip((pageIndex - 1 * pageSize))
                 .Take(pageSize)
-                .Select(f => new FuntionVm()
+                .Select(f => new FunctionVm()
                 {
                     Id = f.Id,
                     Name = f.Name,
@@ -88,7 +92,7 @@ namespace KnowledgeBase.BackendServer.Controllers
                 })
                 .ToListAsync();
 
-            var pagination = new Panination<FuntionVm>
+            var pagination = new Panination<FunctionVm>
             {
                 Items = items,
                 TotalRecords = totalRecords,
@@ -103,7 +107,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
             if (funtion == null) return NotFound();
 
-            var funtionVm = new FuntionVm()
+            var funtionVm = new FunctionVm()
             {
                Id = funtion.Id,
                Name = funtion.Name,
@@ -115,7 +119,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFuntion(string id, [FromBody]FuntionCreateRequest request)
+        public async Task<IActionResult> PutFunction(string id, [FromBody]FunctionCreateRequest request)
         {
 
             var funtion = await _context.Functions.FindAsync(id);
@@ -139,7 +143,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFuntion(string id)
+        public async Task<IActionResult> DeleteFunction(string id)
         {
 
 
@@ -153,7 +157,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
             if (result > 0)
             {
-                var funtionVm = new FuntionVm()
+                var funtionVm = new FunctionVm()
                 {
                     Id = funtion.Id,
                     Name = funtion.Name,
