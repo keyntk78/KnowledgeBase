@@ -1,20 +1,30 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+KnowledgeBase is a open source project for everyone. Every member can create new knowledge base record (KB) and share to community.
+For each KnowledgeBase, user can vote and comment to below KnowledgeBase.
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+# Migration
+- Add-Migration Initial -OutputDir Data/Migrations
+
+
+# Technology Stack
+1. ASP.NET Core 6.0
+2. Angular 13
+3. Identity Server 4
+4. SQL Server 2019
+
+# How to run this project
+1. Clone this source code from Repository
+2. Build solution to restore all Nuget Packages
+3. Set startup project is KnowledgeSpace.BackendServer
+4. Run Update-Database to generate database
+5. Set startup project to multiple projects include: KnowledgeSpace.BackendServer and KnowledgeSpace.WebPortal
 
 # Build and Test
 TODO: Describe and show how to build your code and run the tests. 
 
-# Contribute
+# References
 TODO: Explain how other users and developers can contribute to make your code better. 
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+- [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/getting-started/?view=aspnetcore-7.0)
+- [Visual Studio](https://visualstudio.microsoft.com/vs/)
+- [Identity Server 4](https://identityserver.io/)
+- [Angular](https://angular.io/docs)
