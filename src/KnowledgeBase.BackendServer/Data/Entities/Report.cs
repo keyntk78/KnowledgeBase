@@ -11,7 +11,7 @@ namespace KnowledgeBase.BackendServer.Data.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public int? KnowledgeBaseId { get; set; }
+        public int KnowledgeBaseId { get; set; }
 
         public int? CommentId { get; set; }
 
