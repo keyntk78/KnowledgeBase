@@ -47,7 +47,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetUser()
+        public async Task<IActionResult> GetUsers()
         {
 
             var userVms = await _userManager.Users.Select(u => new UserVm()
