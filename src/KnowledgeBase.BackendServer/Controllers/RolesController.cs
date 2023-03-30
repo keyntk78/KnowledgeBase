@@ -1,4 +1,6 @@
-﻿using KnowledgeBase.ViewModels;
+﻿using KnowledgeBase.BackendServer.Data;
+using KnowledgeBase.BackendServer.Data.Entities;
+using KnowledgeBase.ViewModels;
 using KnowledgeBase.ViewModels.Systems;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +14,11 @@ namespace KnowledgeBase.BackendServer.Controllers
     public class RolesController : BaseController
     {
         private readonly RoleManager<IdentityRole> _roleManager;
-
-        public RolesController(RoleManager<IdentityRole> roleManager)
+        private readonly ApplicationDbContext _context;
+        public RolesController(RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
         {
             _roleManager = roleManager;
+            _context = context;
         }
 
         //Url: POST: http://localhost:5000/api/roles
@@ -155,5 +158,43 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
 
+        [HttpGet("{roleId}/permissions")]
+        public async Task<IActionResult> GetPermissionByRoleId(string roleId)
+        {
+            var permissions = from p in _context.Permissions
+
+                              join a in _context.Commands
+                              on p.CommandId equals a.Id
+            where p.RoleId == roleId
+                              select new PermissionVm()
+                              {
+                                  FunctionId = p.FunctionId,
+                                  CommandId = p.CommandId,
+                                  RoleId = p.RoleId
+                              };
+
+            return Ok(await permissions.ToListAsync());
+        }
+
+        [HttpPut("{roleId}/permissions")]
+        public async Task<IActionResult> PutPermissionByRoleId(string roleId, [FromBody] UpdatePermissionRequest request)
+        {
+            //create new permission list from user changed
+            var newPermissions = new List<Permission>();
+            foreach (var p in request.Permissions)
+            {
+                newPermissions.Add(new Permission(p.FunctionId, roleId, p.CommandId));
+            }
+
+            var existingPermissions = _context.Permissions.Where(x => x.RoleId == roleId);
+            _context.Permissions.RemoveRange(existingPermissions);
+            _context.Permissions.AddRange(newPermissions);
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return NoContent();
+            }
+            return BadRequest();
+        }
     }
 }
