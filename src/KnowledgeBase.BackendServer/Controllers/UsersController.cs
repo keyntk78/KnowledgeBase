@@ -1,4 +1,6 @@
-﻿using KnowledgeBase.BackendServer.Data;
+﻿using KnowledgeBase.BackendServer.Authorization;
+using KnowledgeBase.BackendServer.Constants;
+using KnowledgeBase.BackendServer.Data;
 using KnowledgeBase.BackendServer.Data.Entities;
 using KnowledgeBase.ViewModels;
 using KnowledgeBase.ViewModels.Systems;
@@ -24,6 +26,8 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpPost]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.CREATE)]
+
         public async Task<IActionResult> PostUser([FromBody]UserCreateRequest request)
         {
 
@@ -52,6 +56,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetUsers()
         {
 
@@ -71,6 +76,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetUsersPaging(string? filter, int pageIndex, int pageSize)
         {
             var query = _userManager.Users;
@@ -109,6 +115,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -129,6 +136,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
         public async Task<IActionResult> PutUser(string id, [FromBody] UserCreateRequest request)
         {
 
@@ -152,6 +160,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteUser(string id)
         {
 
@@ -182,6 +191,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpPut("{id}/change-password")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
         public async Task<IActionResult> PutUserPassword(string id, [FromBody] UserPasswordChangeRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
