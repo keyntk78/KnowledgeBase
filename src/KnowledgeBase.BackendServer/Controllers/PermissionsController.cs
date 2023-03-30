@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using KnowledgeBase.BackendServer.Authorization;
+using KnowledgeBase.BackendServer.Constants;
 using KnowledgeBase.ViewModels.Systems;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -16,6 +18,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommandViews()
         {
             using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))

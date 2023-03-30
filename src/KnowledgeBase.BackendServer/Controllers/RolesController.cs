@@ -1,4 +1,6 @@
-﻿using KnowledgeBase.BackendServer.Data;
+﻿using KnowledgeBase.BackendServer.Authorization;
+using KnowledgeBase.BackendServer.Constants;
+using KnowledgeBase.BackendServer.Data;
 using KnowledgeBase.BackendServer.Data.Entities;
 using KnowledgeBase.ViewModels;
 using KnowledgeBase.ViewModels.Systems;
@@ -23,6 +25,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: POST: http://localhost:5000/api/roles
         [HttpPost]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.CREATE)]
         public async Task<IActionResult> PostRole([FromBody]RoleCreateRequest request)
         {
 
@@ -47,6 +50,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: GET: http://localhost:5000/api/roles
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetRoles()
         {
 
@@ -64,6 +68,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //URL: GET: http://localhost:5001/api/roles/?filter={filter}&pageIndex=1&pageSize=10
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetRolesPaging(string? filter, int pageIndex, int pageSize)
         {
             var query = _roleManager.Roles;
@@ -92,6 +97,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: GET: http://localhost:5000/api/roles/{id}
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
@@ -108,6 +114,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: PUT: http://localhost:5000/api/roles/{id}
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.UPDATE)]
         public async Task<IActionResult> PutRole(string id,[FromBody]RoleCreateRequest request)
         {
 
@@ -133,6 +140,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: DELETE: http://localhost:5000/api/roles/{id}
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteRole(string id)
         {
 
@@ -159,6 +167,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
 
         [HttpGet("{roleId}/permissions")]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetPermissionByRoleId(string roleId)
         {
             var permissions = from p in _context.Permissions
@@ -177,6 +186,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpPut("{roleId}/permissions")]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> PutPermissionByRoleId(string roleId, [FromBody] UpdatePermissionRequest request)
         {
             //create new permission list from user changed
