@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KnowledgeBase.ViewModels.Systems
 {
-    public class FuntionCreateRequest
+    public class FunctionCreateRequest
     {
 
         public string Id { get; set; }

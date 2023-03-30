@@ -19,7 +19,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostUser(UserCreateRequest request)
+        public async Task<IActionResult> PostUser([FromBody]UserCreateRequest request)
         {
 
 
