@@ -17,16 +17,15 @@ namespace KnowledgeBase.BackendServer.Controllers
             _context = context;
         }
 
-
         [HttpGet]
-        public async Task<IActionResult> GetCommands()
+        public async Task<IActionResult> GetCommants()
         {
+            var commands = _context.Commands;
 
-            var commandVms = await _context.Commands.Select(f => new CommandVm()
+            var commandVms = await commands.Select(u => new CommandVm()
             {
-                Id = f.Id,
-                Name = f.Name,
-   
+                Id = u.Id,
+                Name = u.Name,
             }).ToListAsync();
 
             return Ok(commandVms);

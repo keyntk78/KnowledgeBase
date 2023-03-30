@@ -17,6 +17,7 @@ namespace KnowledgeBase.BackendServer.Controllers
             _configuration = configuration;
         }
 
+      
         [HttpGet]
         [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommandViews()
