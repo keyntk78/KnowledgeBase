@@ -8,10 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KnowledgeBase.BackendServer.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize("Bearer")]
-    public class RolesController : ControllerBase
+  
+    public class RolesController : BaseController
     {
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -22,21 +20,21 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: POST: http://localhost:5000/api/roles
         [HttpPost]
-        public async Task<IActionResult> PostRole(RoleVm roleVm)
+        public async Task<IActionResult> PostRole(RoleCreateRequest request)
         {
 
        
             var role = new IdentityRole()
             {
-                Id = roleVm.Id,
-                Name = roleVm.Name,
-                NormalizedName = roleVm.Name.ToUpper()
+                Id = request.Id,
+                Name = request.Name,
+                NormalizedName = request.Name.ToUpper()
             };
 
             var result = await _roleManager.CreateAsync(role);
             if (result.Succeeded)
             {
-                return CreatedAtAction(nameof(GetById), new { id = role.Id }, roleVm);
+                return CreatedAtAction(nameof(GetById), new { id = role.Id }, request);
             } else
             {
                 return BadRequest(result.Errors);
@@ -107,17 +105,17 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         //Url: PUT: http://localhost:5000/api/roles/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRole(string id,[FromBody]RoleVm roleVm)
+        public async Task<IActionResult> PutRole(string id,[FromBody]RoleCreateRequest request)
         {
 
-            if (id != roleVm.Id) return BadRequest();
+            if (id != request.Id) return BadRequest();
 
             var role = await _roleManager.FindByIdAsync(id);
 
             if (role == null) return NotFound();
 
-            role.Name = roleVm.Name;
-            role.NormalizedName = roleVm.Name.ToUpper();
+            role.Name = request.Name;
+            role.NormalizedName = request.Name.ToUpper();
 
             var result =  await _roleManager.UpdateAsync(role);
 
