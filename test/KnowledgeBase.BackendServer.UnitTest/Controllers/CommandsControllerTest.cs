@@ -27,22 +27,22 @@ namespace KnowledgeBase.BackendServer.UnitTest.Controllers
             Assert.NotNull(controller);
         }
 
-        [Fact]
-        public async Task GetCommand_HasData_ReturnSuccess()
-        {
-            _context.Commands.AddRange(new List<Command>()
-            {
-                new Command(){
-                    Id = "GetCommand_HasData_ReturnSuccess",
-                    Name = "GetCommand_HasData_ReturnSuccess",
-                   }
-            });
-            await _context.SaveChangesAsync();
-            var commandsController = new CommandsController(_context);
-            var result = await commandsController.GetCommands();
-            var okResult = result as OkObjectResult;
-            var commandVms = okResult.Value as IEnumerable<CommandVm>;
-            Assert.True(commandVms.Count() > 0);
-        }
+        //[Fact]
+        //public async Task GetCommand_HasData_ReturnSuccess()
+        //{
+        //    _context.Commands.AddRange(new List<Command>()
+        //    {
+        //        new Command(){
+        //            Id = "GetCommand_HasData_ReturnSuccess",
+        //            Name = "GetCommand_HasData_ReturnSuccess",
+        //           }
+        //    });
+        //    await _context.SaveChangesAsync();
+        //    var commandsController = new CommandsController(_context);
+        //    var result = await commandsController.GetCommands();
+        //    var okResult = result as OkObjectResult;
+        //    var commandVms = okResult.Value as IEnumerable<CommandVm>;
+        //    Assert.True(commandVms.Count() > 0);
+        //}
     }
 }

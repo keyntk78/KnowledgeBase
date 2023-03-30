@@ -3,11 +3,13 @@ using IdentityServer4.EntityFramework.Stores;
 using IdentityServer4.Stores;
 using KnowledgeBase.BackendServer.Data;
 using KnowledgeBase.BackendServer.Data.Entities;
+using KnowledgeBase.BackendServer.Extensions;
 using KnowledgeBase.BackendServer.IdentityServer;
 using KnowledgeBase.BackendServer.Services;
 using KnowledgeBase.ViewModels.Systems;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
@@ -58,6 +60,11 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = true;
 });
 
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 
 builder.Services.AddControllersWithViews().AddFluentValidation(fv=>fv.RegisterValidatorsFromAssemblyContaining<RoleCreateRequestValidator>());
@@ -165,6 +172,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseErrorWrapping();
 app.UseStaticFiles();
 app.UseIdentityServer();
 

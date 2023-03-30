@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KnowledgeBase.BackendServer.Authorization;
 using KnowledgeBase.BackendServer.Constants;
+using KnowledgeBase.BackendServer.Helpers;
 
 namespace KnowledgeBase.BackendServer.Controllers
 {
@@ -21,6 +22,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         [HttpPost]
         [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.CREATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PostCategory([FromBody] CategoryCreateRequest request)
         {
             var category = new Category()
@@ -40,7 +42,7 @@ namespace KnowledgeBase.BackendServer.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Create category failed"));
             }
         }
 
@@ -57,7 +59,6 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         [HttpGet("filter")]
         [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
-
         public async Task<IActionResult> GetCategoriesPaging(string filter, int pageIndex, int pageSize)
         {
             var query = _context.Categories.AsQueryable();
@@ -82,12 +83,11 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         [HttpGet("{id}")]
         [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
-
         public async Task<IActionResult> GetById(string id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             CategoryVm categoryvm = CreateCategoryVm(category);
 
@@ -96,16 +96,15 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         [HttpPut("{id}")]
         [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.UPDATE)]
-
         public async Task<IActionResult> PutCategory(int id, [FromBody] CategoryCreateRequest request)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             if (id == request.ParentId)
             {
-                return BadRequest("Category cannot be a child itself.");
+                return BadRequest(new ApiBadRequestResponse("Category cannot be a child itself."));
             }
 
             category.Name = request.Name;
@@ -121,7 +120,7 @@ namespace KnowledgeBase.BackendServer.Controllers
             {
                 return NoContent();
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Update category failed"));
         }
 
         [HttpDelete("{id}")]
@@ -130,7 +129,7 @@ namespace KnowledgeBase.BackendServer.Controllers
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             _context.Categories.Remove(category);
             var result = await _context.SaveChangesAsync();
@@ -139,7 +138,7 @@ namespace KnowledgeBase.BackendServer.Controllers
                 CategoryVm categoryvm = CreateCategoryVm(category);
                 return Ok(categoryvm);
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Deleted category failed"));
         }
 
         private static CategoryVm CreateCategoryVm(Category category)

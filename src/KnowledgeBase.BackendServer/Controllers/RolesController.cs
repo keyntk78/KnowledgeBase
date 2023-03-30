@@ -2,6 +2,7 @@
 using KnowledgeBase.BackendServer.Constants;
 using KnowledgeBase.BackendServer.Data;
 using KnowledgeBase.BackendServer.Data.Entities;
+using KnowledgeBase.BackendServer.Helpers;
 using KnowledgeBase.ViewModels;
 using KnowledgeBase.ViewModels.Systems;
 using Microsoft.AspNetCore.Authorization;
@@ -17,59 +18,57 @@ namespace KnowledgeBase.BackendServer.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
-        public RolesController(RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
+
+        public RolesController(RoleManager<IdentityRole> roleManager,
+            ApplicationDbContext context)
         {
             _roleManager = roleManager;
             _context = context;
         }
 
-        //Url: POST: http://localhost:5000/api/roles
+        //URL: POST: http://localhost:5001/api/roles
         [HttpPost]
         [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.CREATE)]
-        public async Task<IActionResult> PostRole([FromBody]RoleCreateRequest request)
+        [ApiValidationFilter]
+        public async Task<IActionResult> PostRole(RoleCreateRequest request)
         {
-
-       
             var role = new IdentityRole()
             {
                 Id = request.Id,
                 Name = request.Name,
                 NormalizedName = request.Name.ToUpper()
             };
-
             var result = await _roleManager.CreateAsync(role);
             if (result.Succeeded)
             {
                 return CreatedAtAction(nameof(GetById), new { id = role.Id }, request);
-            } else
+            }
+            else
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new ApiBadRequestResponse(result));
             }
         }
 
-
-        //Url: GET: http://localhost:5000/api/roles
+        //URL: GET: http://localhost:5001/api/roles/
         [HttpGet]
         [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetRoles()
         {
+            var roles = _roleManager.Roles;
 
-        
-            var roles = await _roleManager.Roles.Select(r => new RoleVm()
+            var rolevms = await roles.Select(r => new RoleVm()
             {
-                Id = r.Id, Name = r.Name,
+                Id = r.Id,
+                Name = r.Name
             }).ToListAsync();
 
- 
-            return Ok(roles);
+            return Ok(rolevms);
         }
-
-
 
         //URL: GET: http://localhost:5001/api/roles/?filter={filter}&pageIndex=1&pageSize=10
         [HttpGet("filter")]
         [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
-        public async Task<IActionResult> GetRolesPaging(string? filter, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetRolesPaging(string filter, int pageIndex, int pageSize)
         {
             var query = _roleManager.Roles;
             if (!string.IsNullOrEmpty(filter))
@@ -94,61 +93,56 @@ namespace KnowledgeBase.BackendServer.Controllers
             return Ok(pagination);
         }
 
-
-        //Url: GET: http://localhost:5000/api/roles/{id}
+        //URL: GET: http://localhost:5001/api/roles/{id}
         [HttpGet("{id}")]
         [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
-
-            if (role == null) return NotFound();
+            if (role == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
 
             var roleVm = new RoleVm()
             {
                 Id = role.Id,
-                Name = role.Name
+                Name = role.Name,
             };
             return Ok(roleVm);
         }
 
-        //Url: PUT: http://localhost:5000/api/roles/{id}
+        //URL: PUT: http://localhost:5001/api/roles/{id}
         [HttpPut("{id}")]
         [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.UPDATE)]
-        public async Task<IActionResult> PutRole(string id,[FromBody]RoleCreateRequest request)
+        [ApiValidationFilter]
+        public async Task<IActionResult> PutRole(string id, [FromBody] RoleCreateRequest roleVm)
         {
-
-            if (id != request.Id) return BadRequest();
+            if (id != roleVm.Id)
+                return BadRequest(new ApiBadRequestResponse("Role id not match"));
 
             var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
 
-            if (role == null) return NotFound();
+            role.Name = roleVm.Name;
+            role.NormalizedName = roleVm.Name.ToUpper();
 
-            role.Name = request.Name;
-            role.NormalizedName = request.Name.ToUpper();
+            var result = await _roleManager.UpdateAsync(role);
 
-            var result =  await _roleManager.UpdateAsync(role);
-
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 return NoContent();
             }
- 
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
-
-        //Url: DELETE: http://localhost:5000/api/roles/{id}
+        //URL: DELETE: http://localhost:5001/api/roles/{id}
         [HttpDelete("{id}")]
         [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteRole(string id)
         {
-
-          
             var role = await _roleManager.FindByIdAsync(id);
-
-            if (role == null) return NotFound();
-
+            if (role == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
 
             var result = await _roleManager.DeleteAsync(role);
 
@@ -157,14 +151,12 @@ namespace KnowledgeBase.BackendServer.Controllers
                 var rolevm = new RoleVm()
                 {
                     Id = role.Id,
-                    Name = role.Name,
+                    Name = role.Name
                 };
                 return Ok(rolevm);
             }
-
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
-
 
         [HttpGet("{roleId}/permissions")]
         [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
@@ -174,7 +166,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
                               join a in _context.Commands
                               on p.CommandId equals a.Id
-            where p.RoleId == roleId
+                              where p.RoleId == roleId
                               select new PermissionVm()
                               {
                                   FunctionId = p.FunctionId,
@@ -187,6 +179,7 @@ namespace KnowledgeBase.BackendServer.Controllers
 
         [HttpPut("{roleId}/permissions")]
         [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PutPermissionByRoleId(string roleId, [FromBody] UpdatePermissionRequest request)
         {
             //create new permission list from user changed
@@ -204,7 +197,7 @@ namespace KnowledgeBase.BackendServer.Controllers
             {
                 return NoContent();
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Save permission failed"));
         }
     }
 }

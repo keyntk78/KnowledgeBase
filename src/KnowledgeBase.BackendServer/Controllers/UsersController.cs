@@ -2,6 +2,7 @@
 using KnowledgeBase.BackendServer.Constants;
 using KnowledgeBase.BackendServer.Data;
 using KnowledgeBase.BackendServer.Data.Entities;
+using KnowledgeBase.BackendServer.Helpers;
 using KnowledgeBase.ViewModels;
 using KnowledgeBase.ViewModels.Systems;
 using Microsoft.AspNetCore.Http;
@@ -17,32 +18,31 @@ namespace KnowledgeBase.BackendServer.Controllers
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
-        public UsersController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager,
+
+        public UsersController(UserManager<User> userManager,
+            RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context)
         {
-            _userManager= userManager;
+            _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
         }
 
         [HttpPost]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.CREATE)]
-
-        public async Task<IActionResult> PostUser([FromBody]UserCreateRequest request)
+        [ApiValidationFilter]
+        public async Task<IActionResult> PostUser(UserCreateRequest request)
         {
-
-
             var user = new User()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = request.UserName,
                 Email = request.Email,
                 Dob = request.Dob,
-                FirstName = request.FirstName,
+                UserName = request.UserName,
                 LastName = request.LastName,
-                PhoneNumber= request.PhoneNumber,
+                FirstName = request.FirstName,
+                PhoneNumber = request.PhoneNumber
             };
-
             var result = await _userManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
             {
@@ -50,45 +50,40 @@ namespace KnowledgeBase.BackendServer.Controllers
             }
             else
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new ApiBadRequestResponse(result));
             }
         }
-
 
         [HttpGet]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetUsers()
         {
+            var users = _userManager.Users;
 
-            var userVms = await _userManager.Users.Select(u => new UserVm()
+            var uservms = await users.Select(u => new UserVm()
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                Email = u.Email,
                 Dob = u.Dob,
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber,
                 FirstName = u.FirstName,
-                LastName= u.LastName,
-                PhoneNumber= u.PhoneNumber,
+                LastName = u.LastName
             }).ToListAsync();
 
-
-            return Ok(userVms);
+            return Ok(uservms);
         }
 
         [HttpGet("filter")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
-        public async Task<IActionResult> GetUsersPaging(string? filter, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetUsersPaging(string filter, int pageIndex, int pageSize)
         {
             var query = _userManager.Users;
             if (!string.IsNullOrEmpty(filter))
             {
-                query = query.Where(x => x.Id.Contains(filter) 
-                || x.UserName.Contains(filter) 
-                || x.PhoneNumber.Contains(filter)
-                || x.LastName.Contains(filter)
-                || x.FirstName.Contains(filter)
-                || x.Email.Contains(filter)
-                );
+                query = query.Where(x => x.Email.Contains(filter)
+                || x.UserName.Contains(filter)
+                || x.PhoneNumber.Contains(filter));
             }
             var totalRecords = await query.CountAsync();
             var items = await query.Skip((pageIndex - 1 * pageSize))
@@ -97,11 +92,11 @@ namespace KnowledgeBase.BackendServer.Controllers
                 {
                     Id = u.Id,
                     UserName = u.UserName,
-                    Email = u.Email,
                     Dob = u.Dob,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
+                    Email = u.Email,
                     PhoneNumber = u.PhoneNumber,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName
                 })
                 .ToListAsync();
 
@@ -113,24 +108,24 @@ namespace KnowledgeBase.BackendServer.Controllers
             return Ok(pagination);
         }
 
-
+        //URL: GET: http://localhost:5001/api/users/{id}
         [HttpGet("{id}")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
-
-            if (user == null) return NotFound();
+            if (user == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
             var userVm = new UserVm()
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                Email = user.Email,
                 Dob = user.Dob,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                LastName = user.LastName
             };
             return Ok(userVm);
         }
@@ -139,14 +134,12 @@ namespace KnowledgeBase.BackendServer.Controllers
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
         public async Task<IActionResult> PutUser(string id, [FromBody] UserCreateRequest request)
         {
-
             var user = await _userManager.FindByIdAsync(id);
-
-            if (user == null) return NotFound();
+            if (user == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
-            user.PhoneNumber = request.PhoneNumber;
             user.Dob = request.Dob;
 
             var result = await _userManager.UpdateAsync(user);
@@ -155,48 +148,17 @@ namespace KnowledgeBase.BackendServer.Controllers
             {
                 return NoContent();
             }
-
-            return BadRequest(result.Errors);
-        }
-
-        [HttpDelete("{id}")]
-        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.DELETE)]
-        public async Task<IActionResult> DeleteUser(string id)
-        {
-
-
-            var user = await _userManager.FindByIdAsync(id);
-
-            if (user == null) return NotFound();
-
-
-            var result = await _userManager.DeleteAsync(user);
-
-            if (result.Succeeded)
-            {
-                var userVm = new UserVm()
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Dob = user.Dob,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    PhoneNumber = user.PhoneNumber,
-                };
-                return Ok(userVm);
-            }
-
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpPut("{id}/change-password")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PutUserPassword(string id, [FromBody] UserPasswordChangeRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
             var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
@@ -204,7 +166,34 @@ namespace KnowledgeBase.BackendServer.Controllers
             {
                 return NoContent();
             }
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
+        }
+
+        [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.DELETE)]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                var uservm = new UserVm()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Dob = user.Dob,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName
+                };
+                return Ok(uservm);
+            }
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpGet("{userId}/menu")]
@@ -233,6 +222,6 @@ namespace KnowledgeBase.BackendServer.Controllers
                 .ToListAsync();
             return Ok(data);
         }
-    
+
     }
 }
