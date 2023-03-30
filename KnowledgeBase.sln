@@ -13,7 +13,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{92DF3163-9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KnowledgeBase.BackendServer.UnitTest", "test\KnowledgeBase.BackendServer.UnitTest\KnowledgeBase.BackendServer.UnitTest.csproj", "{1FA73389-9FAC-44AB-B7CC-7D5B795C3945}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnowledgeSpace.ViewModels.UnitTest", "test\KnowledgeSpace.ViewModels.UnitTest\KnowledgeSpace.ViewModels.UnitTest.csproj", "{DA7AF6EC-1D67-4829-B788-541DD8E43666}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KnowledgeSpace.ViewModels.UnitTest", "test\KnowledgeSpace.ViewModels.UnitTest\KnowledgeSpace.ViewModels.UnitTest.csproj", "{DA7AF6EC-1D67-4829-B788-541DD8E43666}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6A1614EB-781E-43C7-8325-8F48DD0DE8F3}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

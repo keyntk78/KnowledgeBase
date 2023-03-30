@@ -2,6 +2,10 @@
 KnowledgeBase is a open source project for everyone. Every member can create new knowledge base record (KB) and share to community.
 For each KnowledgeBase, user can vote and comment to below KnowledgeBase.
 
+# Migration
+- Add-Migration Initial -OutputDir Data/Migrations
+
+
 # Technology Stack
 1. ASP.NET Core 6.0
 2. Angular 13

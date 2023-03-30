@@ -95,7 +95,7 @@ builder.Services.AddRazorPages(options =>
 builder.Services.AddTransient<DbInitializer>(); 
 builder.Services.AddTransient<IEmailSender, EmailSenderService>();
 builder.Services.AddTransient<ISequenceService, SequenceService>();
-
+builder.Services.AddTransient<IStorageService, FileStorageService>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
